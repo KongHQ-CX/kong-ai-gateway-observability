@@ -4,6 +4,10 @@ plugins:
   - name: http-log
     config:
       http_endpoint: http://logstash:8888
+  - name: key-auth
+    config:
+      key_names:
+        - Authorization
 
 services:
   - name: ai
@@ -20,6 +24,8 @@ services:
               model:
                 provider: openai
                 name: gpt-4o
+                options:
+                  max_tokens: null
               auth:
                 header_name: Authorization
                 header_value: "{vault://env/OPENAI_AUTH_HEADER}"
@@ -27,13 +33,6 @@ services:
                 log_statistics: true
                 log_payloads: true
 
-          # Now we add a security plugin at the "model" scope
-          - name: key-auth
-            config:
-              key_names:
-                - Authorization
-
-# and finally a consumer with **its own API key**
 consumers:
   - username: department-1
     keyauth_credentials:

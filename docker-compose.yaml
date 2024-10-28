@@ -59,6 +59,44 @@ services:
       - kong-net
     depends_on:
       - elasticsearch
+  
+  import:
+    image: quay.io/curl/curl:latest
+    container_name: import
+    entrypoint:
+      - /bin/sh
+      - '-c'
+      - |
+          URL=http://kibana:5601
+          status_code=$$(curl --write-out %{http_code} --silent --output /dev/null $$URL/app/home)
+          echo $$status_code
+          sleep 2
+          while [ $$status_code -ne 200 ]
+          do
+            status_code=$$(curl --write-out %{http_code} --silent --output /dev/null $$URL/app/home)
+            echo $$status_code
+            sleep 2
+          done
+          cat > /tmp/indexpattern.json << EOF
+          {
+            "attributes": {
+              "title": "ecs-*",
+              "timeFieldName": "@timestamp"
+            }
+          }
+          EOF
+          curl -X POST \
+            -H "kbn-xsrf: true" \
+            --form file=@/dashboards/kong.ndjson \
+            'http://kibana:5601/api/saved_objects/_import?overwrite=true'
+          echo '> Kibana is bootstrapped'
+    networks:
+      - kong-net
+    volumes:
+      - "./dashboards:/dashboards"
+    depends_on:
+    - kibana
+    - elasticsearch
 
 networks:
   kong-net:
