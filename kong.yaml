@@ -22,7 +22,7 @@ services:
                 name: gpt-4o
               auth:
                 header_name: Authorization
-                header_value: "{vault://env/OPENAI_API_KEY}"
+                header_value: "{vault://env/OPENAI_AUTH_HEADER}"
               logging:
                 log_statistics: true
                 log_payloads: true

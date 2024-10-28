@@ -6,7 +6,7 @@ services:
     environment:
       - KONG_DECLARATIVE_CONFIG=/etc/kong/kong.yaml
       - KONG_DATABASE=off
-      - OPENAI_API_KEY
+      - OPENAI_AUTH_HEADER
     ports:
       - 8000:8000
     networks:
